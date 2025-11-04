@@ -459,10 +459,81 @@ section{ padding: 58px 0; }       /* también un poquito menos de alto */
   font-size: 20px; /* súbelo más si quieres */
   
 }
+
+/* PRELOADER */
+#preloader {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at top, #060606, #000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  flex-direction: column;
+}
+
+.preloader-inner {
+  text-align: center;
+  gap: 10px;
+  max-width: 240px;
+}
+
+.logo-pre {
+  font-size: 2.2rem;
+  letter-spacing: .04em;
+  margin-bottom: 6px;
+  text-shadow: 0 0 14px rgba(255,255,255,.25);
+}
+
+.pre-text {
+  color: rgba(255,255,255,.6);
+  font-size: .8rem;
+  margin-bottom: 14px;
+}
+
+.pre-bar {
+  width: 180px;
+  height: 5px;
+  background: rgba(255,255,255,.06);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.pre-bar-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #27e1c1, #ffffff);
+  border-radius: inherit;
+  animation: prefill 2.4s ease-in-out infinite;
+}
+
+@keyframes prefill {
+  0% { width: 0; }
+  50% { width: 90%; }
+  100% { width: 0; }
+}
+
+/* cuando se oculta */
+body.preloaded #preloader {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease-out;
+}
 </style>
 
 </head>
 <body id="top">
+
+  <div id="preloader">
+    <div class="preloader-inner">
+      <h1 class="logo-pre">Idknoou</h1>
+      <p class="pre-text">Cargando show...</p>
+      <div class="pre-bar">
+        <div class="pre-bar-fill"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- VIDEO DE FONDO -->
   <video id="bgVideo" class="bg-video" autoplay muted loop playsinline>
@@ -988,6 +1059,22 @@ if (subtitleTarget) {
       }
     } catch {}
   });
+
+    // ocultar preloader cuando cargue
+  window.addEventListener('load', function() {
+    // dar un pelito de tiempo para que el video o imágenes tarden 1 toque
+    setTimeout(function() {
+      document.body.classList.add('preloaded');
+    }, 300);
+  });
+
+  // fallback por si el load nunca dispara (red lenta, video bloqueado, etc.)
+  setTimeout(function() {
+    if (!document.body.classList.contains('preloaded')) {
+      document.body.classList.add('preloaded');
+    }
+  }, 6000);
+</script>
 </script>
 
 
