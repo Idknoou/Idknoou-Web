@@ -861,22 +861,16 @@ body.preloaded #preloader {
     'assets/video/bg-show1.mp4',
     'assets/video/bg-show2.mp4'
   ];
-  const randomVideo = bgVideos[Math.floor(Math.random() * bgVideos.length)];
   const bgVideoEl = document.getElementById('bgVideo');
   if (bgVideoEl) {
+    const randomVideo = bgVideos[Math.floor(Math.random() * bgVideos.length)];
     bgVideoEl.src = randomVideo;
-    bgVideoEl.addEventListener('canplay', () => {
-      const p = bgVideoEl.play();
-      if (p !== undefined) {
-        p.catch(() => {});
-      }
-    });
     bgVideoEl.addEventListener('error', () => {
       bgVideoEl.style.display = 'none';
     });
   }
 
-  // todo lo que depende de que la página cargue
+  // cuando todo cargue
   window.addEventListener('load', () => {
     /* ================= AOS ================= */
     if (window.AOS) {
@@ -909,13 +903,9 @@ body.preloaded #preloader {
       });
     }
 
-    /* =========== efecto de tipeo en el hero =========== */
+    /* =========== efecto de tipeo =========== */
     const subtitleTarget = document.getElementById('hero-subtitle');
     const titleEl = document.getElementById('hero-title');
-
-    let typingTimeout = null;
-    let wasDown = false;
-    let currentPhrase = "";
 
     const phrases = [
       "Esto es música para las señoritas.",
@@ -925,6 +915,10 @@ body.preloaded #preloader {
       "¡EY!",
       "¡IdkOnTheBeats!"
     ];
+
+    let typingTimeout = null;
+    let wasDown = false;
+    let currentPhrase = "";
 
     function getRandomPhrase(except) {
       let p = phrases[Math.floor(Math.random() * phrases.length)];
@@ -967,7 +961,7 @@ body.preloaded #preloader {
         startTyping(getRandomPhrase());
       }, 450);
 
-      // click en el título
+      // click título
       if (titleEl) {
         titleEl.addEventListener('click', () => {
           const newPhrase = getRandomPhrase(currentPhrase);
@@ -975,7 +969,7 @@ body.preloaded #preloader {
         });
       }
 
-      // click en el subtítulo
+      // click subtítulo
       subtitleTarget.parentElement.addEventListener('click', () => {
         const newPhrase = getRandomPhrase(currentPhrase);
         startTyping(newPhrase);
@@ -998,45 +992,19 @@ body.preloaded #preloader {
       });
     }
 
-    /* ========== PRELOADER: esperar imágenes y soltar ========== */
-    (function handlePreloader() {
-      // todas las imágenes de la página
-      const imgPromises = Array.from(document.images).map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise(resolve => {
-          img.addEventListener('load', resolve, { once: true });
-          img.addEventListener('error', resolve, { once: true });
-        });
-      });
+    // quitar preloader rápido
+    document.body.classList.add('preloaded');
 
-      // timeout por si la red es lenta
-      const timeout = new Promise(resolve => setTimeout(resolve, 5000));
-
-      Promise.race([
-        Promise.all(imgPromises),
-        timeout
-      ]).then(() => {
-        document.body.classList.add('preloaded');
-
-        // forzar repintado para dispositivos que no muestran nada hasta que te mueves
-        setTimeout(() => {
-          window.dispatchEvent(new Event('resize'));
-          window.scrollTo(0, window.pageYOffset + 1);
-          window.scrollTo(0, window.pageYOffset - 1);
-          if (window.AOS) AOS.refresh();
-        }, 150);
-      });
-    })();
-
-    /* ========== respeta reduce motion ========== */
-    try {
-      const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-      if (media.matches && window.ScrollTrigger) {
-        ScrollTrigger.killAll();
-      }
-    } catch {}
+    // mini nudge por si algún dispositivo no repinta
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+      window.scrollTo(0, window.pageYOffset + 1);
+      window.scrollTo(0, window.pageYOffset - 1);
+      if (window.AOS) AOS.refresh();
+    }, 150);
   });
 </script>
+
 
 
 <div class="floating-msg" id="lastDropMsg" style="display:none">
